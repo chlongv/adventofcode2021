@@ -22,6 +22,20 @@ def solve(commands) -> int:
         
     return horizontal * depth
 
+def solve_aim(commands) -> int:
+    aim, depth, horizontal = 0, 0, 0
+    for command in commands:
+        c, step = command[0], int(command[1])
+        if c == 'up':
+            aim -= step
+        elif c == 'down':
+            aim += step
+        elif c == 'forward':
+            horizontal += step
+            depth += aim * step
+
+    return horizontal * depth
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Solve day2 exercise')
     parser.add_argument('command_file', type=pathlib.Path, help='command input file')
@@ -30,3 +44,4 @@ if __name__ == '__main__':
 
     commands = read_commands(args.command_file)
     print(solve(commands))
+    print(solve_aim(commands))
