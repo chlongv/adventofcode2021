@@ -1,4 +1,5 @@
 import argparse
+import copy
 import numpy as np
 import pathlib
 
@@ -9,8 +10,8 @@ class Bingo:
         self.grid = grid
         self.result = np.zeros((Bingo.GRID_SIZE, Bingo.GRID_SIZE), dtype=bool)
     
-    def __repr__(self):
-        return repr(self.result) +  repr(self.grid)
+    def __str__(self):
+        return str(self.result) + '\n' + str(self.grid)
     
     def play_number(self, n: int) -> bool:
         mask = np.isin(self.grid, n)
@@ -23,7 +24,7 @@ class Bingo:
         # diag1 = np.diagonal(self.result)
         # diag2 = np.fliplr(self.result).diagonal()
         # diag = np.logical_or(np.all(diag1), np.all(diag2))
-        return lines.any() or cols.any() # or diag.any()
+        return np.any(lines) or np.any(cols) # or diag.any()
     
     def score(self, n: int) -> int:
         internal_score = 0
@@ -55,11 +56,29 @@ class Bingo:
         for n in numbers:
             for g in grids:
                 if g.play_number(n):
-                    print('!!! BINGO !!!')
+                    print('!!! FIRST BINGO !!!')
                     print(n)
-                    print(g.grid)
-                    print(g.result)
+                    print(g)
                     return g.score(n)
+
+    @staticmethod
+    def play_until_last(numbers, grids) -> int:
+        for n in numbers:
+            remove = []
+            for g in grids:
+                if g.play_number(n):
+                    print('!! BINGO !!')
+                    if len(grids) > 1:
+                        print(f'Removing grid, {len(grids)-1} remaining')
+                        print(n)
+                        remove.append(g) # don't remove it directly here, messes the for loop
+                    else:
+                        print('!!! LAST GRID BINGO !!!')
+                        print(n)
+                        print(g)
+                        return g.score(n)
+            for r in remove:
+                grids.remove(r)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Solve day4 exercise')
@@ -68,4 +87,5 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     numbers, grids = Bingo.read_bingo(args.file)
-    print(Bingo.play(numbers, grids))
+    print(Bingo.play(copy.deepcopy(numbers),copy.deepcopy(grids)))
+    print(Bingo.play_until_last(numbers, grids))
