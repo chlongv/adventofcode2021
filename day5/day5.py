@@ -68,6 +68,17 @@ def update_vertical(map: np.array, v: Vent) -> None:
         map[x][y] += 1 
 
 
+def update_diagonal(map: np.array, v: Vent) -> None:
+    x_step = 1 if v.s.x < v.e.x else -1
+    y_step = 1 if v.s.y < v.e.y else -1
+    x, y = v.s.x, v.s.y
+    steps = range(v.s.x, v.e.x + 1) if v.s.x < v.e.x else range(v.e.x, v.s.x + 1)
+    for _ in steps:
+        map[x][y] += 1
+        x += x_step
+        y += y_step
+
+
 def check_vents(vents: np.array) -> int:
     dims = find_dims(vents)
     cloud_map = np.zeros(dims, dtype=int)
@@ -76,6 +87,9 @@ def check_vents(vents: np.array) -> int:
             update_horizontal(cloud_map, v)
         elif is_vertical(v):
             update_vertical(cloud_map, v)
+        else:
+            update_diagonal(cloud_map, v)
+    print(cloud_map)
     return np.count_nonzero(cloud_map > 1)
 
 
