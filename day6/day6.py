@@ -1,35 +1,42 @@
 import argparse
-import copy
 import pathlib
 import typing
 
 
-def read_input(file:pathlib.Path) -> typing.List:
+def read_input(file:pathlib.Path) -> typing.Dict:
     with open(file) as f:
         lfs = f.readline()
         lanternfishes = [int(lf) for lf in lfs.split(',')]
-        return lanternfishes
+        population = {k:0 for k in range(0,9)}
+        for lf in lanternfishes:
+            population[lf] += 1
+        return population
 
 
-def epoch(input: typing.List) -> typing.List:
-    new_fishes = []
-    for i, f in enumerate(input):
-        if f == 0:
-            new_fishes.append(8)
-            input[i] = 6
+def total_pop(pop: typing.Dict) -> int:
+    sum = 0
+    for _, v in pop.items():
+        sum += v
+    return sum
+
+def epoch(pop: typing.Dict) -> typing.Dict:
+    output = {k:0 for k in range(0,9)}
+    for k, v in pop.items():
+        if k == 0:
+            output[8] += v
+            output[6] += v
         else:
-            input[i] = f - 1
-    input.extend(new_fishes)
-    return input
+            output[k-1] += v
+    return output
 
 
-def count_fishes(lfs: typing.List, epochs: int, debug: bool) -> int:
-    fishes = lfs
+def count_fishes(initial_pop: typing.Dict, epochs: int, debug: bool) -> int:
+    pop = initial_pop
     for i in range(0, epochs):
-        fishes = epoch(fishes)
+        pop = epoch(pop)
         if debug:
-            print(f'epoch {i}: {len(fishes)} fishes: {fishes}')
-    return len(fishes)
+            print(f'epoch {i}: {total_pop(pop)} fishes: {pop}')
+    return total_pop(pop)
 
 
 if __name__ == '__main__':
@@ -40,5 +47,5 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    lanternfishes = read_input(args.file)
-    print(count_fishes(lanternfishes, args.epochs, args.debug))
+    lf_population = read_input(args.file)
+    print(count_fishes(lf_population, args.epochs, args.debug))
